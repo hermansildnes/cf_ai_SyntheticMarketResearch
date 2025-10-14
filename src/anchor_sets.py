@@ -43,23 +43,3 @@ class AnchorSets:
             "I'm enthusiastic about buying this product.",
         ],
     }
-
-    @classmethod
-    def names(cls):
-        return list(cls.SETS.keys())
-
-    @classmethod
-    def get(cls, *names):
-        result = []
-        for name in names:
-            if name not in cls.SETS:
-                raise KeyError(f"No anchor set named '{name}'")
-            result.append(cls.SETS[name])
-        return result
-
-    @classmethod
-    def get_all(cls):
-        all_items = []
-        for name in cls.names():
-            all_items.append(cls.SETS[name])
-        return all_items

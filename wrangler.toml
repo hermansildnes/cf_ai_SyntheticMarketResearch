@@ -1,0 +1,5 @@
+name = "synthetic-market-research-api"
+compatibility_date = "2025-10-14"
+main = "worker.py"
+compatibility_flags = ["python_workers"]
+type = "python"

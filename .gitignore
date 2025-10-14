@@ -206,7 +206,45 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 
+# Cloudflare Workers
+.wrangler/
+node_modules/
+
+# Logs
+logs/
+*.log
+
+# Data files
 data/
 
+# Output files
 out.txt
 paper.pdf
+
+# Additional Python cache
+__pycache__/
+*.py[cod]
+
+# Environment files
+.env
+.env.*
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+*.egg
+*.manifest
+*.spec
+
+# Testing artifacts
+.coverage
+.coverage.*
+*.cover
+*.py.cover
+
+# IDE-specific files
+.idea/
+.vscode/
+
+python_modules/

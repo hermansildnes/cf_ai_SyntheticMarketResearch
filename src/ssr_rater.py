@@ -1,58 +1,52 @@
 from typing import List
-import numpy as np
+import math
+import os
+import requests
 
 
 class SSR_Rater:
-    def __init__(self, client, model: str = "text-embedding-3-small"):
-        self.client = client
+    def __init__(self, model: str = "@cf/google/embeddinggemma-300m"):
         self.model = model
         self._anchor_cache = {}
+        self.account_id = os.getenv("CLOUDFLARE_ACCOUNT_ID")
+        self.auth_token = os.getenv("CLOUDFLARE_API_KEY")
+        if not self.auth_token:
+            raise ValueError("CLOUDFLARE_API_KEY environment variable is not set.")
 
-    async def _get_embedding(self, text: str) -> np.ndarray:
-        response = await self.client.embeddings.create(input=[text], model=self.model)
-        return np.array(response.data[0].embedding)
-
-    async def _get_embeddings_batch(self, texts: List[str]) -> List[np.ndarray]:
-        response = await self.client.embeddings.create(input=texts, model=self.model)
-        return [np.array(item.embedding) for item in response.data]
+    def _get_embedding(self, text: str) -> list:
+        url = f"https://api.cloudflare.com/client/v4/accounts/{self.account_id}/ai/run/{self.model}"
+        headers = {"Authorization": f"Bearer {self.auth_token}"}
+        payload = {"text": [text]}
+        response = requests.post(url, headers=headers, json=payload)
+        response.raise_for_status()
+        return response.json()["result"]["embeddings"][0]
 
     def _cosine_similarity(
-        self, embedding1: np.ndarray, embedding2: np.ndarray
+        self, embedding1: list, embedding2: list
     ) -> float:
-        return np.dot(embedding1, embedding2) / (
-            np.linalg.norm(embedding1) * np.linalg.norm(embedding2)
-        )
+        dot_product = sum(a * b for a, b in zip(embedding1, embedding2))
+        norm1 = math.sqrt(sum(a * a for a in embedding1))
+        norm2 = math.sqrt(sum(b * b for b in embedding2))
+        return dot_product / (norm1 * norm2)
 
-    async def _get_or_cache_anchor_embeddings(
-        self, anchor_statements: List[str]
-    ) -> List[np.ndarray]:
-        cache_key = tuple(anchor_statements)
-
-        if cache_key not in self._anchor_cache:
-            self._anchor_cache[cache_key] = await self._get_embeddings_batch(
-                anchor_statements
-            )
-
-        return self._anchor_cache[cache_key]
-
-    async def get_likert_distribution(
+    def get_likert_distribution(
         self, text: str, anchor_statements: List[str], beta: float = 1.0
-    ) -> np.ndarray:
-        response_embedding = await self._get_embedding(text)
-        anchor_embeddings = await self._get_or_cache_anchor_embeddings(
-            anchor_statements
-        )
-
-        similarities = np.array(
-            [
-                self._cosine_similarity(response_embedding, anchor_embedding)
-                for anchor_embedding in anchor_embeddings
+    ) -> list:
+        if tuple(anchor_statements) not in self._anchor_cache:
+            self._anchor_cache[tuple(anchor_statements)] = [
+                self._get_embedding(anchor) for anchor in anchor_statements
             ]
-        )
 
-        similarities -= similarities.min()
-        similarities **= beta
+        response_embedding = self._get_embedding(text)
+        anchor_embeddings = self._anchor_cache[tuple(anchor_statements)]
 
-        pmf = similarities / similarities.sum()
+        similarities = [
+            self._cosine_similarity(response_embedding, anchor_embedding)
+            for anchor_embedding in anchor_embeddings
+        ]
 
-        return pmf
+        min_similarity = min(similarities)
+        similarities = [(sim - min_similarity) ** beta for sim in similarities]
+        total = sum(similarities)
+
+        return [sim / total for sim in similarities]
