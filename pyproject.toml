@@ -1,0 +1,18 @@
+[project]
+name = "ssr"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "dotenv>=0.9.9",
+    "matplotlib>=3.10.0",
+    "numpy>=2.3.3",
+    "openai>=2.3.0",
+    "scipy>=1.16.2",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.14.0",
+]
