@@ -1,19 +1,19 @@
 from typing import Dict, Union
-import os
 import requests
-import base64
 
 
 class SyntheticConsumer:
     def __init__(
         self,
         demographics: Dict[str, Union[str, int]],
-        model: str = "@cf/meta/llama-3.1-8b-instruct",
+        model: str = "@cf/meta/llama-3.2-11b-vision-instruct",
+        account_id: str = None,
+        api_key: str = None,
     ):
         self.demographics = demographics
         self.model = model
-        self.account_id = os.getenv("CLOUDFLARE_ACCOUNT_ID")
-        self.auth_token = os.getenv("CLOUDFLARE_API_KEY")
+        self.account_id = account_id
+        self.auth_token = api_key
         if not self.auth_token:
             raise ValueError("CLOUDFLARE_API_KEY environment variable is not set.")
 
@@ -23,7 +23,19 @@ class SyntheticConsumer:
             for key, value in self.demographics.items()
         )
 
-        return f"You are a consumer with the following demographic profile: {demo_description}. Respond authentically as someone with these characteristics would."
+        return f"""You are a consumer with the following demographic profile: {demo_description}.
+        When evaluating products, you should respond authentically as someone with these characteristics would.
+        *Your response may be positive, negative, neutral, or indifferent—reflect honestly, even if you have no interest in the product.*
+        Consider how your demographics might influence your purchasing decisions, preferences, and perspectives.
+
+        Here are some examples of possible attitudes:
+        - Strongly interested in the product.
+        - Probably interested, but with some reservations.
+        - Neutral or undecided; maybe not for you.
+        - Probably would not buy it, due to lack of interest, concerns, or personal fit.
+        - Definitely would not buy it for any reason.
+
+        Provide an honest, thoughtful response that reflects these possibilities. It's perfectly acceptable if the product does not appeal to you at all."""
 
     def evaluate_product(
         self,
@@ -35,6 +47,7 @@ class SyntheticConsumer:
     ) -> str:
         url = f"https://api.cloudflare.com/client/v4/accounts/{self.account_id}/ai/run/{self.model}"
         headers = {"Authorization": f"Bearer {self.auth_token}"}
+
         payload = {
             "messages": [
                 {"role": "system", "content": self._build_system_prompt()},
@@ -43,7 +56,9 @@ class SyntheticConsumer:
                     "content": [
                         {
                             "type": "image_url",
-                            "image_url": {"url": f"data:{mime_type};base64,{base64_image}"},
+                            "image_url": {
+                                "url": f"data:{mime_type};base64,{base64_image}"
+                            },
                         },
                         {"type": "text", "text": question},
                     ],
@@ -55,4 +70,5 @@ class SyntheticConsumer:
 
         response = requests.post(url, headers=headers, json=payload)
         response.raise_for_status()
-        return response.json()["result"]["choices"][0]["message"]["content"]
+
+        return response.json()["result"]["response"]

@@ -1,51 +1,103 @@
 from workers import WorkerEntrypoint, Response
-from fastapi import FastAPI
-from fastapi.responses import JSONResponse
-from urllib.parse import urlparse
+from statistics import mean
+import json
 
-app = FastAPI()
+from src.anchor_sets import AnchorSets
+from src.ssr_rater import SSR_Rater
+from src.synthetic_consumer import SyntheticConsumer
 
-@app.get("/")
-async def read_root():
-    return {"message": "Hello, World!"}
 
 class Default(WorkerEntrypoint):
     async def fetch(self, request):
-        # Parse the URL to extract components
-        parsed_url = urlparse(request.url)
+        if request.method == "OPTIONS":
+            return Response(
+                "",
+                status=200,
+                headers={
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "POST, OPTIONS",
+                    "Access-Control-Allow-Headers": "Content-Type",
+                },
+            )
 
-        # Create the ASGI scope
-        scope = {
-            "type": "http",
-            "method": request.method,
-            "path": parsed_url.path,
-            "query_string": parsed_url.query.encode(),
-            "headers": [(k.encode(), v.encode()) for k, v in request.headers.items()],
-        }
+        if request.method == "POST":
+            return await self.handle_evaluate(request)
+        else:
+            return Response(
+                json.dumps({"error": "Method not allowed. Use POST /evaluate"}),
+                status=405,
+                headers={
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Origin": "*",
+                },
+            )
 
-        # Define the ASGI receive and send functions
-        async def receive():
-            body = await request.body
-            return {"type": "http.request", "body": body}
+    async def handle_evaluate(self, request):
+        """Evaluate product for a demographic profile - stateless."""
+        try:
+            body = await request.json()
+            image = body.get("image")
+            demographic_profile = body.get("demographic_profile")
+            question = body.get(
+                "question", "How likely would you be to buy this product?"
+            )
 
-        async def send(message):
-            nonlocal response, response_status, response_headers
-            if message["type"] == "http.response.start":
-                response_status = message["status"]
-                response_headers = {k.decode(): v.decode() for k, v in message["headers"]}
-            elif message["type"] == "http.response.body":
-                response_body = message.get("body", b"").decode("utf-8")  # Decode bytes to string
-                response = Response(
-                    body=response_body,
-                    status=response_status,
-                    headers=response_headers,
+            if not image or not demographic_profile:
+                return Response(
+                    json.dumps({"error": "Missing image or demographic_profile"}),
+                    status=400,
+                    headers={
+                        "Content-Type": "application/json",
+                        "Access-Control-Allow-Origin": "*",
+                    },
                 )
 
-        # Initialize variables
-        response = None
-        response_status = 500  # Default to internal server error
-        response_headers = {}
+            account_id = self.env.CLOUDFLARE_ACCOUNT_ID
+            api_key = self.env.CLOUDFLARE_API_KEY
 
-        # Call the FastAPI app with the ASGI interface
-        await app(scope, receive, send)
-        return response
+            rater = SSR_Rater(account_id=account_id, api_key=api_key)
+            synthetic_consumer = SyntheticConsumer(
+                demographic_profile, account_id=account_id, api_key=api_key
+            )
+
+            response_text = synthetic_consumer.evaluate_product(image, question)
+
+            anchor_sets = AnchorSets.SETS.values()
+            distributions = [
+                rater.get_likert_distribution(response_text, list(anchors))
+                for anchors in anchor_sets
+            ]
+
+            mean_rating = mean(
+                [
+                    sum(pmf[i] * (i + 1) for i in range(len(pmf)))
+                    for pmf in distributions
+                ]
+            )
+
+            return Response(
+                json.dumps(
+                    {
+                        "success": True,
+                        "demographic_profile": demographic_profile,
+                        "response": response_text,
+                        "distributions": distributions,
+                        "mean_rating": mean_rating,
+                    }
+                ),
+                status=200,
+                headers={
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Origin": "*",
+                },
+            )
+
+        except Exception as e:
+            return Response(
+                json.dumps({"error": str(e)}),
+                status=500,
+                headers={
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Origin": "*",
+                },
+            )
