@@ -1,0 +1,24 @@
+# Wrangler
+.wrangler/
+.dev.vars
+.env
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Dependencies
+node_modules/
+python_modules/
+
+# Lock files
+uv.lock

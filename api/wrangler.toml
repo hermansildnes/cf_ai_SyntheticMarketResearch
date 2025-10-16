@@ -1,0 +1,17 @@
+name = "synthetic-market-research-api"
+compatibility_date = "2025-10-01"
+main = "worker.py"
+compatibility_flags = ["python_workers"]
+type = "python"
+
+# AI Binding
+[ai]
+binding = "AI"
+
+# Watch configuration - exclude directories that shouldn't trigger reloads
+[dev]
+watch_paths = ["worker.py", "src/**/*.py"]
+
+# For development, set these in a .dev.vars file:
+# CLOUDFLARE_ACCOUNT_ID=your_account_id
+# CLOUDFLARE_API_KEY=your_api_key

@@ -210,6 +210,15 @@ __marimo__/
 .wrangler/
 node_modules/
 
+# TypeScript/JavaScript build artifacts
+backend/dist/
+backend/node_modules/
+frontend/dist/
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+*.tsbuildinfo
+
 # Logs
 logs/
 *.log

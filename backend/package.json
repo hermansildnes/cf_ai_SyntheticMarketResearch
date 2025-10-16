@@ -1,0 +1,22 @@
+{
+  "name": "synthetic-market-research-backend",
+  "version": "0.0.1",
+  "description": "TypeScript backend orchestration worker with Durable Objects",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "dev:local": "wrangler dev --local",
+    "dev:remote": "wrangler dev --remote",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail",
+    "types": "tsc --noEmit"
+  },
+  "keywords": ["cloudflare", "workers", "durable-objects", "ai"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20251011.0",
+    "typescript": "^5.9.3",
+    "wrangler": "^4.43.0"
+  }
+}
