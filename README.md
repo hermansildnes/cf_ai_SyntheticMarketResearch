@@ -39,11 +39,32 @@ git clone https://github.com/hermansildnes/cf_ai_SyntheticMarketResearch.git
 cd cf_ai_SyntheticMarketResearch
 ```
 
-2. **Install dependencies**
+2. **Configure environment**
+```bash
+cp .env.example .env
+# Edit .env and add your Cloudflare credentials:
+# - CLOUDFLARE_API_KEY (get from https://dash.cloudflare.com/profile/api-tokens)
+# - CLOUDFLARE_ACCOUNT_ID
+```
+
+3. **Start the application**
+```bash
+./run.sh
+```
+
+The script will automatically install all dependencies on first run, then start all services.
+
+The app will be available at `http://localhost:5173`
+
+### Manual Start (Alternative)
+
+If you prefer to start services individually, first install dependencies:
+
 ```bash
 # Python dependencies for API
 cd api
 uv sync
+npm install wrangler
 cd ..
 
 # Node dependencies for backend
@@ -57,26 +78,7 @@ npm install
 cd ..
 ```
 
-3. **Configure environment**
-```bash
-# Copy the example env file
-cp .env.example .env
-
-# Edit .env and add your Cloudflare credentials:
-# CLOUDFLARE_API_KEY
-# CLOUDFLARE_ACCOUNT_ID
-```
-
-4. **Start the application**
-```bash
-./run.sh
-```
-
-The app will be available at `http://localhost:5173`
-
-### Manual Start (Alternative)
-
-If you prefer to start services individually:
+Then start each service in separate terminals:
 
 ```bash
 # Terminal 1: TypeScript Backend
