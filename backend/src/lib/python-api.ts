@@ -38,9 +38,49 @@ export const DEFAULT_DEMOGRAPHICS: DemographicProfile[] = [
 		age: 22,
 		gender: 'female',
 		location: 'Michigan',
-		income: '$30',
+		income: '$30k',
 		occupation: 'walmart cashier',
 		interests: ['pilates','social media','hiking']
+	},
+	{
+		age: 52,
+		gender: 'male',
+		location: 'Seattle',
+		income: '$110k',
+		occupation: 'architect',
+		interests: ['design', 'photography', 'cycling']
+	},
+	{
+		age: 31,
+		gender: 'female',
+		location: 'Austin',
+		income: '$65k',
+		occupation: 'graphic designer',
+		interests: ['art', 'music festivals', 'food trucks']
+	},
+	{
+		age: 58,
+		gender: 'female',
+		location: 'Boston',
+		income: '$85k',
+		occupation: 'nurse',
+		interests: ['healthcare', 'knitting', 'volunteering']
+	},
+	{
+		age: 26,
+		gender: 'male',
+		location: 'Los Angeles',
+		income: '$48k',
+		occupation: 'barista',
+		interests: ['coffee', 'skateboarding', 'indie films']
+	},
+	{
+		age: 41,
+		gender: 'male',
+		location: 'Chicago',
+		income: '$95k',
+		occupation: 'financial analyst',
+		interests: ['investing', 'sports', 'craft beer']
 	}
 ];
 
@@ -76,16 +116,15 @@ export async function evaluateProduct(
 	imageBase64: string,
 	demographics: DemographicProfile[] = DEFAULT_DEMOGRAPHICS
 ): Promise<EvaluationResponse[]> {
-	const results: EvaluationResponse[] = [];
+	const promises = demographics.map(profile => 
+		callPythonAPI(apiUrl, imageBase64, profile)
+			.catch(error => {
+				console.error('Error evaluating for profile:', profile, error);
+				return null;
+			})
+	);
 
-	for (const profile of demographics) {
-		try {
-			const result = await callPythonAPI(apiUrl, imageBase64, profile);
-			results.push(result);
-		} catch (error) {
-			console.error('Error evaluating for profile:', profile, error);
-		}
-	}
+	const results = await Promise.all(promises);
 
-	return results;
+	return results.filter((result): result is EvaluationResponse => result !== null);
 }
