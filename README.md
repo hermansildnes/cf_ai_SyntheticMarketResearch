@@ -27,8 +27,7 @@ This platform uses Cloudflare Workers AI (llama 3.2) to create synthetic consume
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/)
-- [uv](https://docs.astral.sh/uv/)
+- [Node.js](https://nodejs.org/) (v18 or later)
 - Cloudflare account with API access
 
 ### Setup
@@ -63,7 +62,6 @@ If you prefer to start services individually, first install dependencies:
 ```bash
 # Python dependencies for API
 cd api
-uv sync
 npm install wrangler
 cd ..
 

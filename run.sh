@@ -26,11 +26,6 @@ fi
 # Check and install dependencies
 echo "Checking dependencies..."
 
-if [ ! -d "api/python_modules" ] && [ ! -d "api/.venv" ]; then
-    echo "Installing Python dependencies..."
-    (cd api && uv sync)
-fi
-
 if [ ! -d "api/node_modules" ]; then
     echo "Installing wrangler for API..."
     (cd api && npm install wrangler)
