@@ -39,16 +39,37 @@ trap 'jobs -p | xargs -r kill 2>/dev/null' EXIT
 
 echo "Starting services..."
 
-(cd backend && npm run dev > /dev/null 2>&1) &
+mkdir -p logs
+
+(cd backend && npm run dev > ../logs/backend.log 2>&1) &
+BACKEND_PID=$!
 sleep 2
 
-(cd api && npx wrangler dev > /dev/null 2>&1) &
+if ! kill -0 $BACKEND_PID 2>/dev/null; then
+    echo "Backend failed to start. Check logs/backend.log"
+    exit 1
+fi
+
+(cd api && npx wrangler dev > ../logs/api.log 2>&1) &
+API_PID=$!
 sleep 2
 
-(cd frontend && npm run dev > /dev/null 2>&1) &
-sleep 3
+if ! kill -0 $API_PID 2>/dev/null; then
+    echo "API failed to start. Check logs/api.log"
+    exit 1
+fi
+
+(cd frontend && npm run dev > ../logs/frontend.log 2>&1) &
+FRONTEND_PID=$!
+sleep 2
+
+if ! kill -0 $FRONTEND_PID 2>/dev/null; then
+    echo "Frontend failed to start. Check logs/frontend.log"
+    exit 1
+fi
 
 echo ""
 echo "Ready: http://localhost:5173"
+echo ""
 
 wait

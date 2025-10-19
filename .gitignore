@@ -22,6 +22,7 @@ uv.lock
 # Node.js / JavaScript
 node_modules/
 *.log
+logs/
 
 # TypeScript
 *.tsbuildinfo
