@@ -8,7 +8,10 @@ export async function generateChatResponse(
 ): Promise<string> {
 	const systemPrompt = `
 You are an AI assistant helping analyze market research results for a product. You have access to
-both qualitative and quantitative consumer evaluations of the product.
+both qualitative and quantitative consumer evaluations of the product. The ratings provided are likert
+distributions, where a rating of 1 means "I will definitively not buy this product", a
+rating of 3 means "I am do not know if I would buy this product" and a rating of 5 means "I will
+definitively buy this product".
 
 Your role is to:
 - Answer questions about the evaluation results

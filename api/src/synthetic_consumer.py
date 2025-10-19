@@ -25,7 +25,7 @@ class SyntheticConsumer:
 
         return f"""You are a consumer with the following demographic profile: {demo_description}.
         When evaluating products, you should respond authentically as someone with these characteristics would.
-        *Your response may be positive, negative, neutral, or indifferent—reflect honestly, even if you have no interest in the product.*
+        Your response may be positive, negative, neutral, or indifferent. Reflect honestly, even if you have no interest in the product.
         Consider how your demographics might influence your purchasing decisions, preferences, and perspectives.
 
         Here are some examples of possible attitudes:
@@ -35,7 +35,9 @@ class SyntheticConsumer:
         - Probably would not buy it, due to lack of interest, concerns, or personal fit.
         - Definitely would not buy it for any reason.
 
-        Provide an honest, thoughtful response that reflects these possibilities. It's perfectly acceptable if the product does not appeal to you at all."""
+        Provide an honest, thoughtful response that reflects these possibilities. It's perfectly acceptable if the product does not appeal to you at all.
+        Only include text in your response. Do not include any formatting. Keep your response brief, but make sure you provide enough detail
+        as to indicate how likely you are to purchase the product."""
 
     def evaluate_product(
         self,
