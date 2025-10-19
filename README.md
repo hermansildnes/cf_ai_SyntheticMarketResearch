@@ -27,8 +27,8 @@ This platform uses Cloudflare Workers AI (llama 3.2) to create synthetic consume
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) (v18 or later)
-- [uv](https://docs.astral.sh/uv/) (Python package manager)
+- [Node.js](https://nodejs.org/)
+- [uv](https://docs.astral.sh/uv/)
 - Cloudflare account with API access
 
 ### Setup
