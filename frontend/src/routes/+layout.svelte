@@ -20,7 +20,7 @@
 	</main>
 
 	<footer>
-		<p>Build with Cloudflare Workers and Workers AI</p>
+		<p>&copy; 2025 Herman Sildnes</p>
 	</footer>
 </div>
 

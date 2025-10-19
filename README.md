@@ -1,6 +1,6 @@
 # Synthetic Market Research
 
-A full-stack AI-powered market research platform built with Cloudflare Workers, featuring synthetic consumer evalutation and intelligent product insights.
+A full-stack AI-powered market research platform built with Cloudflare Workers, featuring synthetic consumer evaluation and intelligent product insights.
 
 
 **Proof of concept based on findings from [this paper](https://arxiv.org/abs/2510.08338).**
@@ -18,7 +18,7 @@ This platform uses Cloudflare Workers AI (llama 3.2) to create synthetic consume
 
 ## Features
 
-- **Syntetic Market Research**: Uses Llama 3.2 Vision model to qualitativly evaluate a product across multiple demographics
+- **Synthetic Market Research**: Uses Llama 3.2 Vision model to qualitatively evaluate a product across multiple demographics
 - **Semantic Similarity Ratings**: Converts qualitative responses to quantitative ratings using semantic similarity
 - **Session Management**: Durable Objects for persistent user sessions and chat history
 - **LLM Chat**: Ask questions about market research data to gain further insights
@@ -99,3 +99,6 @@ npm run dev
 3. **Results** - See ratings across demographics
 4. **Chat** - Ask questions about the evaluation results
 
+## License
+
+MIT License - see [LICENSE](LICENSE) for details.
