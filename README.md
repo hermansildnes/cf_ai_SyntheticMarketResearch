@@ -21,13 +21,13 @@ This platform uses Cloudflare Workers AI (llama 3.2) to create synthetic consume
 - **Synthetic Market Research**: Uses Llama 3.2 Vision model to qualitatively evaluate a product across multiple demographics
 - **Semantic Similarity Ratings**: Converts qualitative responses to quantitative ratings using semantic similarity
 - **Session Management**: Durable Objects for persistent user sessions and chat history
-- **LLM Chat**: Ask questions about market research data to gain further insights
+- **LLM Chat**: Ask Llama 3.3 questions about market research data to gain further insights
 
 ## Quick Start
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) (v18 or later)
+- [Node.js](https://nodejs.org/)
 - Cloudflare account with API access
 
 ### Setup
@@ -41,9 +41,7 @@ cd cf_ai_SyntheticMarketResearch
 2. **Configure environment**
 ```bash
 cp .env.example .env
-# Edit .env and add your Cloudflare credentials:
-# - CLOUDFLARE_API_KEY (get from https://dash.cloudflare.com/profile/api-tokens)
-# - CLOUDFLARE_ACCOUNT_ID
+# Edit .env and add your Cloudflare credentials
 ```
 
 3. **Start the application**
@@ -60,7 +58,7 @@ The app will be available at `http://localhost:5173`
 If you prefer to start services individually, first install dependencies:
 
 ```bash
-# Python dependencies for API
+# Wrangler for Python Worker
 cd api
 npm install wrangler
 cd ..
