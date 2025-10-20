@@ -122,18 +122,6 @@
 		</div>
 	{/if}
 
-	<!-- Debug info -->
-	{#if sessionData && !isLoading}
-		<div style="padding: 1rem; background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; margin-bottom: 1rem; font-family: monospace; font-size: 0.875rem;">
-			<strong>Debug Info:</strong><br/>
-			Status: {sessionData.status}<br/>
-			Has results: {sessionData.evaluationResults?.length || 0}<br/>
-			Is processing: {isProcessing}<br/>
-			Is completed: {isCompleted}<br/>
-			Has error: {hasError}
-		</div>
-	{/if}
-
 	{#if isLoading}
 		<div class="loading">
 			<div class="spinner"></div>
