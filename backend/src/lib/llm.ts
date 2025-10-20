@@ -38,6 +38,8 @@ ${evaluationContext}
 	];
 
 	try {
+		console.log('[LLM] Calling ai.run() with model: @cf/meta/llama-3.3-70b-instruct-fp8-fast');
+		
 		const response = await ai.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', {
 			messages,
 			max_tokens: 1000,
@@ -45,13 +47,15 @@ ${evaluationContext}
 			stream: false
 		});
 
+		console.log('[LLM] Response received:', typeof response, response ? Object.keys(response) : 'null');
+
 		if (response && typeof response === 'object' && 'response' in response) {
 			return (response as any).response;
 		}
 
 		return 'I apologize, but I encountered an error generating a response. Please try again.';
 	} catch (error) {
-		console.error('LLM error:', error);
+		console.error('[LLM] Error:', error);
 		throw new Error('Failed to generate chat response');
 	}
 }
