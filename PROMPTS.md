@@ -63,3 +63,7 @@ https://github.com/cloudflare/workers-py?tab=readme-ov-file#pywrangler"
 "Create a bash script to start the individual services (api, backend, frontend)"
 
 "Keep the script significantly simpler. Do not include terminal formatting or other fluff"
+
+"When I clone the repo, it gets stuck after uploading an image. Lets add some debugging on the frontend to find out what goes wrong"
+
+"I figured out what was wrong. It was a backend issue. Lets remove the frontend debugging."
