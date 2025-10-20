@@ -185,34 +185,18 @@ async function handleChat(sessionId: string, request: Request, env: Env): Promis
 		});
 	}
 
-	let aiResponse: string;
-	
-	try {
-		if (!env.AI) {
-			throw new Error('AI binding not available');
-		}
-		
-		// Get evaluation context from the Durable Object via fetch
-		const contextResponse = await stub.fetch('http://internal/evaluation-context');
-		const contextData = await contextResponse.json() as { context: string };
-		const evaluationContext = contextData.context;
+	// Get evaluation context
+	const contextResponse = await stub.fetch('http://internal/evaluation-context');
+	const contextData = await contextResponse.json() as { context: string };
+	const evaluationContext = contextData.context;
 
-		// Generate response using LLM
-		aiResponse = await generateChatResponse(
-			env.AI,
-			evaluationContext,
-			sessionData.chatHistory || [],
-			body.message
-		);
-	} catch (error) {
-		console.error('AI error, using fallback:', error);
-		// Fallback response when AI is not available
-		aiResponse = `I can see the evaluation results show an average rating of ${
-			sessionData.evaluationResults.length > 0
-				? (sessionData.evaluationResults.reduce((acc: number, r: any) => acc + r.mean_rating, 0) / sessionData.evaluationResults.length).toFixed(1)
-				: 'N/A'
-		}/5. The evaluations are complete, but AI chat is temporarily unavailable. Please check the detailed results above.`;
-	}
+	// Generate response using LLM
+	const aiResponse = await generateChatResponse(
+		env.AI,
+		evaluationContext,
+		sessionData.chatHistory || [],
+		body.message
+	);
 
 	// Store assistant response
 	await stub.fetch('http://internal/chat', {

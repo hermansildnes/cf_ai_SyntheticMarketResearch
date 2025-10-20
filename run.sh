@@ -21,7 +21,6 @@ if [[ "$CLOUDFLARE_ACCOUNT_ID" == "your_account_id_here" ]] || [[ -z "$CLOUDFLAR
     exit 1
 fi
 
-# Export for wrangler to use in non-interactive mode
 export CLOUDFLARE_API_TOKEN=$CLOUDFLARE_API_KEY
 export CLOUDFLARE_ACCOUNT_ID=$CLOUDFLARE_ACCOUNT_ID
 
