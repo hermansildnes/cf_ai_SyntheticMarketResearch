@@ -2,7 +2,6 @@
 
 set -e
 
-# Check for .env file
 if [ ! -f .env ]; then
     echo "Error: .env file not found"
     echo "Run: cp .env.example .env"
@@ -12,7 +11,6 @@ fi
 
 source .env
 
-# Validate environment variables
 if [[ "$CLOUDFLARE_API_KEY" == "your_api_key_here" ]] || [[ -z "$CLOUDFLARE_API_KEY" ]]; then
     echo "CLOUDFLARE_API_KEY not set in .env"
     exit 1
@@ -23,7 +21,6 @@ if [[ "$CLOUDFLARE_ACCOUNT_ID" == "your_account_id_here" ]] || [[ -z "$CLOUDFLAR
     exit 1
 fi
 
-# Check and install dependencies
 echo "Checking dependencies..."
 
 if [ ! -d "api/node_modules" ]; then
@@ -41,7 +38,6 @@ if [ ! -d "frontend/node_modules" ]; then
     (cd frontend && npm install)
 fi
 
-# Create environment config files
 cat > api/.dev.vars << EOF
 CLOUDFLARE_API_KEY=$CLOUDFLARE_API_KEY
 CLOUDFLARE_ACCOUNT_ID=$CLOUDFLARE_ACCOUNT_ID
