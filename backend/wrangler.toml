@@ -3,27 +3,16 @@ main = "src/index.ts"
 compatibility_date = "2024-10-15"
 compatibility_flags = ["nodejs_compat"]
 
-# Development configuration
 [dev]
 port = 8788
 
-# Durable Objects bindings
 [[durable_objects.bindings]]
 name = "SESSIONS"
 class_name = "SessionObject"
 
-# AI binding for Llama models
-[ai]
-binding = "AI"
-
-# Environment variables (set these with wrangler secret put)
 [vars]
 PYTHON_API_URL = "https://your-python-api.workers.dev"
 ENVIRONMENT = "development"
-
-# For local development, create a .dev.vars file with:
-# PYTHON_API_URL=http://localhost:8787
-# OPENAI_API_KEY=your_key_if_needed
 
 [[migrations]]
 tag = "v1"
