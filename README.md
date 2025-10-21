@@ -9,6 +9,15 @@ A full-stack AI-powered market research platform built with Cloudflare Workers, 
 
 This platform uses Cloudflare Workers AI (llama 3.2) to create synthetic consumer personas that evaluate products across different demographics. It implements the Semantic Similarity Rating (SSR) method presented by [Maier et al.](https://arxiv.org/abs/2510.08338) for converting qualitative AI feedback into quantitative Likert-scale distributions.
 
+<div align="center">
+  <table>
+    <tr>
+      <td><img src="assets/frontpage.png" alt="Front Page" width="400"/></td>
+      <td><img src="assets/results.png" alt="Results" width="400"/></td>
+    </tr>
+  </table>
+</div>
+
 ## Components
 
 - **`api/`** - Python Worker for synthetic consumer evaluations using Workers AI and Semantic Similarity Ratings
@@ -52,6 +61,8 @@ cp .env.example .env
 The script will automatically install all dependencies on first run, then start all services.
 
 The app will be available at `http://localhost:5173`
+
+> **Tip**: A sample product image (`ad.png`) is included in the `assets/` folder that you can use to test the platform.
 
 ### Manual Start (Alternative)
 
