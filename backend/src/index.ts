@@ -9,6 +9,8 @@ interface Env {
 	SESSIONS: DurableObjectNamespace;
 	AI: any;
 	PYTHON_API_URL: string;
+	CLOUDFLARE_ACCOUNT_ID: string;
+	CLOUDFLARE_API_KEY: string;
 	ENVIRONMENT?: string;
 }
 
@@ -56,7 +58,6 @@ export default {
 				return await handleGetSession(sessionId, env);
 			}
 
-			// Chat with session context
 			if (path.startsWith('/api/session/') && path.endsWith('/chat') && request.method === 'POST') {
 				const sessionId = path.split('/')[3];
 				return await handleChat(sessionId, request, env);
@@ -80,14 +81,11 @@ async function handleCreateSession(request: Request, env: Env, ctx: ExecutionCon
 		return jsonResponse({ error: 'Image is required' }, 400);
 	}
 
-	// Generate session ID
 	const sessionId = crypto.randomUUID();
 
-	// Get Durable Object stub
 	const id = env.SESSIONS.idFromName(sessionId);
 	const stub = env.SESSIONS.get(id);
 
-	// Initialize the session
 	await stub.fetch('http://internal/create', {
 		method: 'POST',
 		body: JSON.stringify({
@@ -96,7 +94,6 @@ async function handleCreateSession(request: Request, env: Env, ctx: ExecutionCon
 		})
 	});
 
-	// Start evaluation in the background
 	ctx.waitUntil(
 		(async () => {
 			try {
@@ -109,7 +106,6 @@ async function handleCreateSession(request: Request, env: Env, ctx: ExecutionCon
 
 				console.log('Evaluation completed, results:', results.length);
 
-				// Store results in Durable Object
 				await stub.fetch('http://internal/evaluation-results', {
 					method: 'POST',
 					body: JSON.stringify({
@@ -122,7 +118,6 @@ async function handleCreateSession(request: Request, env: Env, ctx: ExecutionCon
 				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 				console.error('Error message:', errorMessage);
 				
-				// Mark session as error with error message
 				await stub.fetch('http://internal/evaluation-results', {
 					method: 'POST',
 					body: JSON.stringify({
@@ -148,7 +143,6 @@ async function handleGetSession(sessionId: string, env: Env): Promise<Response> 
 
 	const response = await stub.fetch('http://internal/data');
 	
-	// Pass through the response from the Durable Object
 	return new Response(response.body, {
 		status: response.status,
 		headers: {
@@ -168,13 +162,11 @@ async function handleChat(sessionId: string, request: Request, env: Env): Promis
 	const id = env.SESSIONS.idFromName(sessionId);
 	const stub = env.SESSIONS.get(id) as any;
 
-	// Store user message
 	await stub.fetch('http://internal/chat', {
 		method: 'POST',
 		body: JSON.stringify({ message: body.message })
 	});
 
-	// Get evaluation context and chat history
 	const dataResponse = await stub.fetch('http://internal/data');
 	const sessionData = await dataResponse.json() as any;
 
@@ -185,20 +177,18 @@ async function handleChat(sessionId: string, request: Request, env: Env): Promis
 		});
 	}
 
-	// Get evaluation context
 	const contextResponse = await stub.fetch('http://internal/evaluation-context');
 	const contextData = await contextResponse.json() as { context: string };
 	const evaluationContext = contextData.context;
 
-	// Generate response using LLM
 	const aiResponse = await generateChatResponse(
-		env.AI,
+		env.CLOUDFLARE_ACCOUNT_ID,
+		env.CLOUDFLARE_API_KEY,
 		evaluationContext,
 		sessionData.chatHistory || [],
 		body.message
 	);
 
-	// Store assistant response
 	await stub.fetch('http://internal/chat', {
 		method: 'POST',
 		body: JSON.stringify({ response: aiResponse })

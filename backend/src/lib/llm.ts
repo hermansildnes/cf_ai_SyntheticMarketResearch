@@ -1,7 +1,6 @@
-import type { Ai } from '@cloudflare/workers-types';
-
 export async function generateChatResponse(
-	ai: Ai,
+	accountId: string,
+	apiKey: string,
 	evaluationContext: string,
 	chatHistory: Array<{ role: 'user' | 'assistant'; content: string }>,
 	userMessage: string
@@ -37,20 +36,38 @@ ${evaluationContext}
 		{ role: 'user' as const, content: userMessage }
 	];
 
+	// AI binding was unstable so switched to direct API call
 	try {
-		console.log('[LLM] Calling ai.run() with model: @cf/meta/llama-3.3-70b-instruct-fp8-fast');
+		const model = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
+		const url = `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/${model}`;
 		
-		const response = await ai.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', {
-			messages,
-			max_tokens: 1000,
-			temperature: 0.7,
-			stream: false
+		console.log('[LLM] Calling Cloudflare AI API with model:', model);
+		
+		const response = await fetch(url, {
+			method: 'POST',
+			headers: {
+				'Authorization': `Bearer ${apiKey}`,
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				messages,
+				max_tokens: 1000,
+				temperature: 0.7,
+				stream: false
+			})
 		});
 
-		console.log('[LLM] Response received:', typeof response, response ? Object.keys(response) : 'null');
+		if (!response.ok) {
+			const errorText = await response.text();
+			console.error('[LLM] API Error:', response.status, errorText);
+			throw new Error(`API request failed: ${response.status} ${errorText}`);
+		}
 
-		if (response && typeof response === 'object' && 'response' in response) {
-			return (response as any).response;
+		const data = await response.json() as any;
+		console.log('[LLM] Response received:', typeof data, data ? Object.keys(data) : 'null');
+
+		if (data?.result?.response) {
+			return data.result.response;
 		}
 
 		return 'I apologize, but I encountered an error generating a response. Please try again.';
